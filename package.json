@@ -1,0 +1,20 @@
+{
+  "name": "discord_bot",
+  "version": "1.0.0",
+  "description": "po",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iqeiq/discord_bot.git"
+  },
+  "author": "iqeiq",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iqeiq/discord_bot/issues"
+  },
+  "homepage": "https://github.com/iqeiq/discord_bot#readme",
+  "dependencies": {}
+}
