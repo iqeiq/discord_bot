@@ -11,6 +11,7 @@ function do_paon(voiceChannel) {
     if (dispatcher) dispatcher.end();
     voiceChannel.join().then(connection => {
         dispatcher = connection.playFile('./resource/pao.mp3');
+        dispatcher.setVolumeLogarithmic(0.5);
         dispatcher.on('end', () => {
             voiceChannel.leave();
             dispatcher = null;
