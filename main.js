@@ -83,7 +83,14 @@ function findVoiceChannel(name) {
     for (let ch of client.channels.values()) {
         if(ch.type !== 'voice') continue
         //if(!ch.members || !ch.members.size) continue
-        if(ch.name == name) return ch
+        if(ch.name == name || ch.id == name) return ch
+    }
+    return null
+}
+
+function findUser(guild, name) {
+    for (let mem of guild.members.values()) {
+        if(mem.user.username == name || mem.user.id == name) return mem
     }
     return null
 }
@@ -99,7 +106,7 @@ client.on('ready', () => {
  
 // 象メイン
 client.on('message', msg => {
-    const {content, channel, member, author} = msg;
+    const {content, channel, member, author, guild} = msg;
 
     function reaction() {
         msg.react("🐘").then(r => {
@@ -151,6 +158,47 @@ client.on('message', msg => {
     if(first === "!talk") {
         reaction()
         play(talk, rest.join(" "))
+        return
+    }
+
+    if(first === "!move") {
+        if(!guild) {
+            msg.reply(`guild is null !`)
+            return
+        }
+        if(rest.length == 0) return
+        let mem = null
+        let ch = null
+        if(rest.length < 2) {
+            mem = author
+            ch = findVoiceChannel(rest[0])
+        } else {
+            mem = findUser(guild, rest[0])
+            ch = findVoiceChannel(rest[1])
+        }
+        if(ch == null || mem == null) {
+            msg.reply(`voiceChannel or member (${rest.join(",")} => ${mem}, ${ch}) not found !`)
+            return
+        }
+        guild.member(mem).edit({ channel: ch }).catch(console.error)
+        return
+    }
+
+    if(first === "!debug") {
+        if(!guild) {
+            msg.reply(`guild is null !`)
+            return
+        }
+        if(rest.length == 0) return
+        let arr = []
+        if(rest[0] == "channels") {
+            for (let ch of guild.channels.values()) 
+                if(ch.type != "category") arr.push(`${ch.id} ${ch.name} (${ch.type})`)
+        } else if(rest[0] == "members") {
+            for (let mem of guild.members.values()) 
+                arr.push(`${mem.user.id} ${mem.user.username}`)
+        } else return
+        msg.channel.send(`\`\`\`${arr.join('\n')}\`\`\``)
         return
     }
     
