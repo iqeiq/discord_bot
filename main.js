@@ -60,8 +60,8 @@ function voiceTextStream(text, extra) {
     if(!extra) extra = {}
     extra.format = 'ogg'
     if(!extra.speaker) extra.speaker = 'hikari' //randomChoice(VoiceTable)
-    extra.speed = 120
-    extra.pitch = 90
+    if(!extra.speed) extra.speed = 120
+    if(!extra.pitch) extra.pitch = 90
     //extra.emotion = 'happiness'
     //extra.emotion_level = 2
     return voiceText.stream(text, extra)
@@ -158,6 +158,11 @@ client.on('message', msg => {
     if(first === "!talk") {
         reaction()
         play(talk, rest.join(" "))
+        return
+    }
+    if(first === "!talk2") {
+        reaction()
+        play(talk, rest.join(" "), { speaker: 'bear', speed: 80 })
         return
     }
 
