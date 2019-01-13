@@ -39,10 +39,10 @@ const { createPlayer, cancelPlayerAll } = (() => {
             if (dispatcher) dispatcher.end()
         }
         cancelers.push(canceler)
-        const player = (voiceChannel, extra) => {
+        const player = (voiceChannel, extra, extra2) => {
             canceler()
             joinAndLeave(voiceChannel, (conn, done)=> {
-                dispatcher = factory(conn, extra)
+                dispatcher = factory(conn, extra, extra2)
                 dispatcher.setVolumeLogarithmic(VOLUME)
                 dispatcher.on('end', () => {
                     dispatcher = null
@@ -56,12 +56,40 @@ const { createPlayer, cancelPlayerAll } = (() => {
     return {createPlayer, cancelPlayerAll}
 })();
 
-function voiceTextStream(text) {
-    return voiceText.stream(text, { format: 'ogg', speaker: randomChoice(VoiceTable) })
+function voiceTextStream(text, extra) {
+    if(!extra) extra = {}
+    extra.format = 'ogg'
+    if(!extra.speaker) extra.speaker = 'hikari' //randomChoice(VoiceTable)
+    extra.speed = 120
+    extra.pitch = 90
+    //extra.emotion = 'happiness'
+    //extra.emotion_level = 2
+    return voiceText.stream(text, extra)
+}
+
+function findUserVoiceChannel(id) {
+    for (let ch of client.channels.values()) {
+        if(ch.type !== 'voice') continue
+        if(!ch.members || !ch.members.size) continue
+        for (let usr of ch.members.values()) {
+            if(usr.id !== id) continue
+            return ch
+        }
+    }
+    return null
+}
+
+function findVoiceChannel(name) {
+    for (let ch of client.channels.values()) {
+        if(ch.type !== 'voice') continue
+        //if(!ch.members || !ch.members.size) continue
+        if(ch.name == name) return ch
+    }
+    return null
 }
 
 const do_paon = createPlayer((conn, file) => conn.playFile(file))
-const talk = createPlayer((conn, text) => conn.playStream(voiceTextStream(text)))
+const talk = createPlayer((conn, text, extra) => conn.playStream(voiceTextStream(text, extra)))
 
 // 象する
 client.on('ready', () => {
@@ -78,10 +106,14 @@ client.on('message', msg => {
             setTimeout(()=> { r.remove(client.user) }, 3000);
         }).catch(console.error);
     }
-    
-    function play(player, extra) {
+
+    function play(player, extra, extra2) {
         if(member && member.voiceChannel) {
-            player(member.voiceChannel, extra)
+            player(member.voiceChannel, extra, extra2)
+        } else if(author.id === process.env.OWNER_ID && channel.type === 'dm') {
+            let ch = findUserVoiceChannel(process.env.OWNER_ID)
+            if(ch != null) player(ch, extra, extra2)
+            else msg.reply('You need to join a voice channel first! :elephant:')
         } else {
             msg.reply('You need to join a voice channel first! :elephant:')
         }
@@ -93,26 +125,27 @@ client.on('message', msg => {
         return
     }
 
-    if (content === 'ping') {
+    const first = content.split(" ")[0]
+    let rest = content.split(" ")
+    rest.splice(0, 1)
+
+    if (first === 'ping') {
         reaction()
         return
     }
-    if (content === '?pao') {
+    if (first === '?pao' || first === '!help') {
         let arr = Object.keys(soundCommands)
-        arr.join('!talk (text)')
+        arr.push('!talk (text)')
         let message = arr.join("`, `")
         msg.channel.send(`:elephant: :dash:\n\`${message}\``)
         return
     }
-    if (content === '!cancel') {
+    // ヨシ！
+    if (first === '!cancel') {
         reaction()
         cancelPlayerAll()
         return
     }
-
-    const first = content.split(" ")[0]
-    let rest = content.split(" ")
-    rest.splice(0, 1)
     
     // しゃべる
     if(first === "!talk") {
@@ -125,9 +158,26 @@ client.on('message', msg => {
     let cmd = soundCommands[first]
     if (cmd) {
         reaction()
-        play(do_paon, cmd)
+        // 他のチャンネルにpaon
+        if(rest.length) {
+            let ch = findVoiceChannel(rest.join(" "))
+            if(ch == null ) msg.reply(`voiceChannel "${rest.join(" ")}" not found !`)
+            else do_paon(ch, cmd)
+        }
+        // 自分にpaon
+        else play(do_paon, cmd)
+        return
     }
-    
+
+    // 管理者特権
+    if(author.id === process.env.OWNER_ID) {
+        if(channel.type === 'dm') {
+            let ch = findUserVoiceChannel(process.env.OWNER_ID)
+            if(ch != null) talk(ch, content)
+            else msg.reply('You need to join a voice channel first! :elephant:')
+        }
+    }
+
 });
  
 client.login(process.env.DISCORD_TOKEN)
