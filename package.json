@@ -21,6 +21,7 @@
     "dotenv": "^6.0.0",
     "ffmpeg-binaries": "^4.0.0",
     "node-opus": "^0.3.0",
-    "opusscript": "0.0.6"
+    "opusscript": "0.0.6",
+    "voice-text": "^0.1.2"
   }
 }
