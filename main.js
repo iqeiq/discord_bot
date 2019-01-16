@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Discord = require('discord.js')
 const { VoiceText } = require('voice-text')
+const async = require('async')
 
 // win用にパス通す
 const sp = process.platform === 'win32' ? ';' : ':'
@@ -23,37 +24,43 @@ function randomChoice(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
 }
 
-// -----
-
-function joinAndLeave(voiceChannel, openListener) {
-    voiceChannel.join()
-        .then(conn => openListener(conn, ()=> voiceChannel.leave()))
-        .catch(console.error)
-}
-
-const { createPlayer, cancelPlayerAll } = (() => {
-    let cancelers = [];
+// 音再生まわり
+const { createPlayer, canceler } = (() => {
+    // キューにためこむ
+    let q = async.queue((task, cb) => { task(cb) }, 1)
+    let dispatcher = null
+    const canceler = () => {
+        // 音がなってたら止める
+        if (dispatcher) dispatcher.end()
+        // キューを空に
+        q.kill()
+    }
+    // 再生リクエスト関数を作成
     const createPlayer = (factory) => {
-        let dispatcher = null
-        const canceler = () => {
-            if (dispatcher) dispatcher.end()
-        }
-        cancelers.push(canceler)
         const player = (voiceChannel, extra, extra2) => {
-            canceler()
-            joinAndLeave(voiceChannel, (conn, done)=> {
-                dispatcher = factory(conn, extra, extra2)
-                dispatcher.setVolumeLogarithmic(VOLUME)
-                dispatcher.on('end', () => {
-                    dispatcher = null
-                    done();
-                });
-            })
+            // キューに入れて逐次処理
+            q.push(cb => {
+                // 入室
+                voiceChannel.join()
+                // 再生
+                .then(conn => new Promise(resolve => {
+                    dispatcher = factory(conn, extra, extra2)
+                    dispatcher.setVolumeLogarithmic(VOLUME)
+                    dispatcher.on('end', () => {
+                        dispatcher = null
+                        resolve()
+                    })
+                }))
+                // 退出
+                .then(() => voiceChannel.leave())
+                // 処理完了したので, 次のキューを消化
+                .then(() => cb())
+                .catch(console.error)
+            })    
         }
         return player
     }
-    const cancelPlayerAll = () => cancelers.forEach((cancel) => cancel())
-    return {createPlayer, cancelPlayerAll}
+    return { createPlayer, canceler }
 })();
 
 function voiceTextStream(text, extra) {
@@ -150,7 +157,7 @@ client.on('message', msg => {
     // ヨシ！
     if (first === '!cancel') {
         reaction()
-        cancelPlayerAll()
+        canceler()
         return
     }
     
@@ -234,3 +241,6 @@ client.on('message', msg => {
 });
  
 client.login(process.env.DISCORD_TOKEN)
+
+process.on('unhandledRejection', console.dir)
+process.on('uncaughtException', console.error)
