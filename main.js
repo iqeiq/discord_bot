@@ -37,7 +37,7 @@ const { createPlayer, canceler } = (() => {
     }
     // 再生リクエスト関数を作成
     const createPlayer = (factory) => {
-        const player = (voiceChannel, extra, extra2) => {
+        return (voiceChannel, extra, extra2) => {
             // キューに入れて逐次処理
             q.push(cb => {
                 // 入室
@@ -58,10 +58,9 @@ const { createPlayer, canceler } = (() => {
                 .catch(console.error)
             })    
         }
-        return player
     }
     return { createPlayer, canceler }
-})();
+})()
 
 function voiceTextStream(text, extra) {
     if(!extra) extra = {}
@@ -109,16 +108,16 @@ const talk = createPlayer((conn, text, extra) => conn.playStream(voiceTextStream
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setActivity('象', { type: 'PLAYING' })
-});
+})
  
 // 象メイン
 client.on('message', msg => {
-    const {content, channel, member, author, guild} = msg;
+    const {content, channel, member, author, guild} = msg
 
     function reaction() {
         msg.react("🐘").then(r => {
-            setTimeout(()=> { r.remove(client.user) }, 3000);
-        }).catch(console.error);
+            setTimeout(()=> { r.remove(client.user) }, 3000)
+        }).catch(console.error)
     }
 
     function play(player, extra, extra2) {
@@ -196,6 +195,7 @@ client.on('message', msg => {
         return
     }
 
+    // デバッグ用
     if(first === "!debug") {
         if(!guild) {
             msg.reply(`guild is null !`)
@@ -238,7 +238,7 @@ client.on('message', msg => {
         }
     }
 
-});
+})
  
 client.login(process.env.DISCORD_TOKEN)
 
