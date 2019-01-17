@@ -146,7 +146,7 @@ client.on('message', msg => {
         reaction()
         return
     }
-    if (first === '?pao' || first === '!help') {
+    if (first === '?pao') {
         let arr = Object.keys(soundCommands)
         arr.push('!talk (text)')
         let message = arr.join("`, `")
@@ -169,6 +169,23 @@ client.on('message', msg => {
     if(first === "!talk2") {
         reaction()
         play(talk, rest.join(" "), { speaker: 'bear', speed: 80 })
+        return
+    }
+
+    if(first === "!join") {
+        let ch = null
+        if(rest.length == 0) {
+            ch = findUserVoiceChannel(author.id)
+        } else {
+            ch = findVoiceChannel(rest[0])
+        }
+        if(ch == null) {
+            msg.reply(`voiceChannel not found !`)
+            return
+        }
+        ch.join(conn => {
+
+        })
         return
     }
 
