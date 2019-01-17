@@ -138,9 +138,8 @@ client.on('message', msg => {
         return
     }
 
-    const first = content.split(" ")[0]
-    let rest = content.split(" ")
-    rest.splice(0, 1)
+    // コマンド処理
+    let [first, ...rest] = content.split(" ")
 
     if (first === 'ping') {
         reaction()
