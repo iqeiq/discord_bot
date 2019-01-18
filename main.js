@@ -107,7 +107,7 @@ const talk = createPlayer((conn, text, extra) => conn.playStream(voiceTextStream
 // 象する
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
-    client.user.setActivity('象', { type: 'PLAYING' })
+    client.user.setActivity('象', { type: 'WATCHING' })
 })
  
 // 象メイン
