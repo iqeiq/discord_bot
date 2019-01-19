@@ -2,6 +2,7 @@ require('dotenv').config()
 const Discord = require('discord.js')
 const { VoiceText } = require('voice-text')
 const async = require('async')
+const { readFileSync } = require('fs')
 
 // win用にパス通す
 const sp = process.platform === 'win32' ? ';' : ':'
@@ -14,10 +15,16 @@ const voiceText = new VoiceText(process.env.VOICETEXT_TOKEN)
 // 定数たち
 const soundCommands = {
     "!paon": './resource/pao.mp3',
-    "!xperia":  './resource/xperia.mp3'
+    "!xperia":  './resource/xperia.mp3',
+    "!hoho":  './resource/hoho.mp3',
+    "!trumpet": './resource/trumpet.mp3',
+    "!tin": './resource/tin.mp3',
+    '!gaya': './resource/gayagaya.mp3',
+    '!uwaa': './resource/uwaa.mp3'
 }
 const VoiceTable = ['hikari', 'haruka', 'takeru', 'santa', 'bear', 'show']
 const VOLUME = 0.75
+const weapons = readFileSync("resource/weapons.txt", { encoding: "utf-8" }).split("\n")
 
 // お便利
 function randomChoice(arr) {
@@ -70,6 +77,7 @@ function voiceTextStream(text, extra) {
     if(!extra.pitch) extra.pitch = 90
     //extra.emotion = 'happiness'
     //extra.emotion_level = 2
+    if(text.length > 200) text = text.substring(0, 200)
     return voiceText.stream(text, extra)
 }
 
@@ -114,6 +122,12 @@ client.on('ready', () => {
 client.on('message', msg => {
     const {content, channel, member, author, guild} = msg
 
+    // 自分のメッセージ
+    if (author.id === client.user.id) {
+        //msg.delete(10000)
+        return
+    }
+
     function reaction() {
         msg.react("🐘").then(r => {
             setTimeout(()=> { r.remove(client.user) }, 3000)
@@ -131,85 +145,41 @@ client.on('message', msg => {
             msg.reply('You need to join a voice channel first! :elephant:')
         }
     }
-    
-    // 揮発性メッセージ君
-    if (author.id === client.user.id) {
-        msg.delete(10000)
-        return
-    }
 
     // コマンド処理
     let [first, ...rest] = content.split(" ")
 
-    if (first === 'ping') {
-        reaction()
-        return
-    }
-    if (first === '?pao') {
+    let commands = {}
+    // help
+    commands["?pao"] = () => { 
         let arr = Object.keys(soundCommands)
-        arr.push('!talk (text)')
+        arr.push(...Object.keys(commands))
         let message = arr.join("`, `")
         msg.channel.send(`:elephant: :dash:\n\`${message}\``)
-        return
     }
+    // 生存確認
+    commands["!ping"] = () => {}
     // ヨシ！
-    if (first === '!cancel') {
-        reaction()
-        canceler()
-        return
-    }
-    
+    commands["!cancel"] = () => { canceler() }
     // しゃべる
-    if(first === "!talk") {
-        reaction()
-        play(talk, rest.join(" "))
-        return
+    commands["!talk"] = () => {
+        if(rest.length == 0) msg.reply(`\`\`\`!talk (text)\`\`\``) 
+        else play(talk, rest.join(" "))
     }
-    if(first === "!talk2") {
-        reaction()
-        play(talk, rest.join(" "), { speaker: 'bear', speed: 80 })
-        return
-    }
-
-    if(first === "!join") {
-        let ch = null
-        if(rest.length == 0) {
-            ch = findUserVoiceChannel(author.id)
-        } else {
-            ch = findVoiceChannel(rest[0])
-        }
-        if(ch == null) {
-            msg.reply(`voiceChannel not found !`)
-            return
-        }
-        ch.join(conn => {
-
-        })
-        return
+    // しゃべる
+    commands["!talk2"] = () => {
+        if(rest.length == 0) msg.reply(`\`\`\`!talk2 (text)\`\`\``) 
+        else play(talk, rest.join(" "), { speaker: 'bear', speed: 80 }) }
+    // ブキルーレット
+    commands["!buki"] = () => { msg.reply(`${randomChoice(weapons)}`) }
+    // Hey, Siri
+    commands["!siri"] = () => { 
+        if(rest.length == 0) msg.reply(`\`\`\`!siri (text)\`\`\``) 
+        else msg.reply("ググってね")
     }
 
-    if(first === "!move") {
-        if(!guild) {
-            msg.reply(`guild is null !`)
-            return
-        }
-        if(rest.length == 0) return
-        let mem = null
-        let ch = null
-        if(rest.length < 2) {
-            mem = author
-            ch = findVoiceChannel(rest[0])
-        } else {
-            mem = findUser(guild, rest[0])
-            ch = findVoiceChannel(rest[1])
-        }
-        if(ch == null || mem == null) {
-            msg.reply(`voiceChannel or member (${rest.join(",")} => ${mem}, ${ch}) not found !`)
-            return
-        }
-        guild.member(mem).edit({ channel: ch }).catch(console.error)
-        return
-    }
+    let command = commands[first]
+    if(command) { reaction(); command(); return }
 
     // デバッグ用
     if(first === "!debug") {
@@ -233,15 +203,16 @@ client.on('message', msg => {
     // 音再生
     let cmd = soundCommands[first]
     if (cmd) {
+        let sound = Array.isArray(cmd) ? randomChoice(cmd) : cmd
         reaction()
         // 他のチャンネルにpaon
         if(rest.length) {
             let ch = findVoiceChannel(rest.join(" "))
             if(ch == null ) msg.reply(`voiceChannel "${rest.join(" ")}" not found !`)
-            else do_paon(ch, cmd)
+            else do_paon(ch, sound)
         }
         // 自分にpaon
-        else play(do_paon, cmd)
+        else play(do_paon, sound)
         return
     }
 
