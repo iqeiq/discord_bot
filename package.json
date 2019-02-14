@@ -18,7 +18,8 @@
   "homepage": "https://github.com/iqeiq/discord_bot#readme",
   "dependencies": {
     "async": "^2.6.1",
-    "discord.js": "^11.3.2",
+    "audio-mixer": "github:tokoro10g/Audio-Mixer#feature-softclip",
+    "discord.js": "github:discordjs/discord.js",
     "dotenv": "^6.0.0",
     "ffmpeg-binaries": "^4.0.0",
     "node-opus": "^0.3.0",

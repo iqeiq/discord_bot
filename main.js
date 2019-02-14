@@ -172,10 +172,10 @@ client.on('message', msg => {
         else play(talk, rest.join(" "), { speaker: 'bear', speed: 80 }) }
     // ブキルーレット
     commands["!buki"] = () => { msg.reply(`${randomChoice(weapons)}`) }
-    // Hey, Siri
-    commands["!siri"] = () => { 
-        if(rest.length == 0) msg.reply(`\`\`\`!siri (text)\`\`\``) 
-        else msg.reply("ググってね")
+    // ランダム
+    commands["!choice"] = () => { 
+        if(rest.length == 0) msg.reply(`\`\`\`!choice e1 [e2...]\`\`\``) 
+        else msg.channel.send(`${randomChoice(rest)}`)
     }
 
     let command = commands[first]
@@ -197,6 +197,22 @@ client.on('message', msg => {
                 arr.push(`${mem.user.id} ${mem.user.username}`)
         } else return
         msg.channel.send(`\`\`\`${arr.join('\n')}\`\`\``)
+        return
+    }
+    if(first === "!join") {
+        let ch = null
+        if(rest.length == 0) {
+            ch = findUserVoiceChannel(author.id)
+        } else {
+            ch = findVoiceChannel(rest[0])
+        }
+        if(ch == null) {
+            msg.reply(`voiceChannel not found !`)
+            return
+        }
+        ch.join(conn => {
+
+        })
         return
     }
     
