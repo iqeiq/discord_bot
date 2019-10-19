@@ -201,20 +201,20 @@ client.on('message', msg => {
     }
     
     // 音再生
-    let cmd = soundCommands[first]
-    if (cmd) {
-        let sound = Array.isArray(cmd) ? randomChoice(cmd) : cmd
-        reaction()
-        // 他のチャンネルにpaon
-        if(rest.length) {
-            let ch = findVoiceChannel(rest.join(" "))
-            if(ch == null ) msg.reply(`voiceChannel "${rest.join(" ")}" not found !`)
-            else do_paon(ch, sound)
-        }
-        // 自分にpaon
-        else play(do_paon, sound)
-        return
-    }
+    // let cmd = soundCommands[first]
+    // if (cmd) {
+    //     let sound = Array.isArray(cmd) ? randomChoice(cmd) : cmd
+    //     reaction()
+    //     // 他のチャンネルにpaon
+    //     if(rest.length) {
+    //         let ch = findVoiceChannel(rest.join(" "))
+    //         if(ch == null ) msg.reply(`voiceChannel "${rest.join(" ")}" not found !`)
+    //         else do_paon(ch, sound)
+    //     }
+    //     // 自分にpaon
+    //     else play(do_paon, sound)
+    //     return
+    // }
 
     // 管理者特権
     if(author.id === process.env.OWNER_ID) {
