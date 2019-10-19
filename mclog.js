@@ -3,7 +3,7 @@ const {EventEmitter} = require('events')
 const {exec} = require('child_process')
 const dm = require('./deathmessages')
 
-const LOGFILE = "/home/ilil/minecraft/"
+const LOGFILE = "/home/ilil/minecraft/logs/latest.log"
 
 class McLogWatcher extends EventEmitter {
     constructor() {
@@ -20,8 +20,8 @@ class McLogWatcher extends EventEmitter {
             }
             if(event != 'change') { return }
             exec(`tail -n 1 ${LOGFILE}`, (err, stdout, stderr)=> {
-                if(err) { console.err(err); return }
-                if(stderr) { console.err(stderr); return }
+                if(err) { console.error(err); return }
+                if(stderr) { console.error(stderr); return }
                 const line = stdout.toString().split(/\r*\n/)
                 if(line.length == 0) { return }
                 const sp = line[0].split(/]:\s*/)
