@@ -1,8 +1,10 @@
 require('dotenv').config()
 const Discord = require('discord.js')
-const { VoiceText } = require('voice-text')
 const async = require('async')
-const { readFileSync } = require('fs')
+
+const McLogWatcher = require('./mclog')
+const watcher = new McLogWatcher()
+watcher.start()
 
 // win用にパス通す
 const sp = process.platform === 'win32' ? ';' : ':'
@@ -10,21 +12,13 @@ process.env.PATH = `node_modules/ffmpeg-binaries/bin${sp}${process.env.PATH}`
 
 // 各種クライアント
 const client = new Discord.Client()
-const voiceText = new VoiceText(process.env.VOICETEXT_TOKEN)
 
 // 定数たち
 const soundCommands = {
     "!paon": './resource/pao.mp3',
-    "!xperia":  './resource/xperia.mp3',
-    "!hoho":  './resource/hoho.mp3',
-    "!trumpet": './resource/trumpet.mp3',
-    "!tin": './resource/tin.mp3',
-    '!gaya': './resource/gayagaya.mp3',
-    '!uwaa': './resource/uwaa.mp3'
+    "!xperia":  './resource/xperia.mp3'
 }
-const VoiceTable = ['hikari', 'haruka', 'takeru', 'santa', 'bear', 'show']
 const VOLUME = 0.75
-const weapons = readFileSync("resource/weapons.txt", { encoding: "utf-8" }).split("\n")
 
 // お便利
 function randomChoice(arr) {
@@ -69,18 +63,6 @@ const { createPlayer, canceler } = (() => {
     return { createPlayer, canceler }
 })()
 
-function voiceTextStream(text, extra) {
-    if(!extra) extra = {}
-    extra.format = 'ogg'
-    if(!extra.speaker) extra.speaker = 'hikari' //randomChoice(VoiceTable)
-    if(!extra.speed) extra.speed = 120
-    if(!extra.pitch) extra.pitch = 90
-    //extra.emotion = 'happiness'
-    //extra.emotion_level = 2
-    if(text.length > 200) text = text.substring(0, 200)
-    return voiceText.stream(text, extra)
-}
-
 function findUserVoiceChannel(id) {
     for (let ch of client.channels.values()) {
         if(ch.type !== 'voice') continue
@@ -102,6 +84,15 @@ function findVoiceChannel(name) {
     return null
 }
 
+function findTextChannel(name) {
+    for (let ch of client.channels.values()) {
+        if(ch.type !== 'text') continue
+        //if(!ch.members || !ch.members.size) continue
+        if(ch.name == name || ch.id == name) return ch
+    }
+    return null
+}
+
 function findUser(guild, name) {
     for (let mem of guild.members.values()) {
         if(mem.user.username == name || mem.user.id == name) return mem
@@ -110,12 +101,21 @@ function findUser(guild, name) {
 }
 
 const do_paon = createPlayer((conn, file) => conn.playFile(file))
-const talk = createPlayer((conn, text, extra) => conn.playStream(voiceTextStream(text, extra)))
 
 // 象する
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
     client.user.setActivity('象', { type: 'WATCHING' })
+
+    mc_ch = findTextChannel('325296413103882241')
+    if(mc_ch == null) {
+        console.error("not found minecraft channel")
+    } else {
+        watcher.on('notify', (mes)=> {
+            //mc_ch.send(mes)
+            console.log("[notify]", mes)
+        })
+    }
 })
  
 // 象メイン
@@ -161,23 +161,7 @@ client.on('message', msg => {
     commands["!ping"] = () => {}
     // ヨシ！
     commands["!cancel"] = () => { canceler() }
-    // しゃべる
-    commands["!talk"] = () => {
-        if(rest.length == 0) msg.reply(`\`\`\`!talk (text)\`\`\``) 
-        else play(talk, rest.join(" "))
-    }
-    // しゃべる
-    commands["!talk2"] = () => {
-        if(rest.length == 0) msg.reply(`\`\`\`!talk2 (text)\`\`\``) 
-        else play(talk, rest.join(" "), { speaker: 'bear', speed: 80 }) }
-    // ブキルーレット
-    commands["!buki"] = () => { msg.reply(`${randomChoice(weapons)}`) }
-    // ランダム
-    commands["!choice"] = () => { 
-        if(rest.length == 0) msg.reply(`\`\`\`!choice e1 [e2...]\`\`\``) 
-        else msg.channel.send(`${randomChoice(rest)}`)
-    }
-
+    
     let command = commands[first]
     if(command) { reaction(); command(); return }
 
