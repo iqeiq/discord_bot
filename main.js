@@ -112,7 +112,7 @@ client.on('ready', () => {
         console.error("not found minecraft channel")
     } else {
         watcher.on('notify', (mes)=> {
-            //mc_ch.send(mes)
+            mc_ch.send(mes)
             console.log("[notify]", mes)
         })
     }
