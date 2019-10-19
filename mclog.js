@@ -3,8 +3,7 @@ const {EventEmitter} = require('events')
 const {exec} = require('child_process')
 const dm = require('./deathmessages')
 
-//const LOGFILE = "/home/ilil/minecraft/"
-const LOGFILE = "C:\\Users\\ryosuke\\repo\\discord_bot\\.gitignore"
+const LOGFILE = "/home/ilil/minecraft/"
 
 class McLogWatcher extends EventEmitter {
     constructor() {
