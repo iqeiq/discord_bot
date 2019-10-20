@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Discord = require('discord.js')
 const async = require('async')
+const Rx = require('rx')
 
 const McLogWatcher = require('./mclog')
 const watcher = new McLogWatcher()
@@ -111,6 +112,14 @@ client.on('ready', () => {
     if(mc_ch == null) {
         console.error("not found minecraft channel")
     } else {
+        Rx.Observable
+            .fromEvent(watcher, 'notify')
+            .buffer(() => Rx.Observable.timer(30000))
+            .subscribe(lines => {
+                mes = lines.join('\n')
+                mc_ch.send(mes)
+                console.log("[notify]", mes)
+            });
         watcher.on('notify', (mes)=> {
             mc_ch.send(mes)
             console.log("[notify]", mes)

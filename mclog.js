@@ -31,8 +31,13 @@ class McLogWatcher extends EventEmitter {
                 let mes = `${t} ${sp[1]}`
                 if(mes == prevlog) { return }
                 prevlog = mes
-                if(/<[^>]+>/.test(mes)) { return }
-                if(/the game/.test(mes)) {
+                mes = `${sp[1]}`
+                if(/<[^>]+>/.test(mes)) {
+                    this.emit('notify', mes)
+                }
+                if(/advancement/.test(mes)) {
+                    this.emit('notify', mes)
+                } else if(/the game/.test(mes)) {
                     this.emit('notify', mes)
                 } else if(dm.some((v)=> v.test(mes))) {
                     this.emit('notify', mes)
