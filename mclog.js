@@ -66,8 +66,9 @@ class McLogWatcher extends EventEmitter {
 
     list(cb) {
         this.command('list', (str)=> {
+            console.log(str)
             const sp = str.split(/:\s*/)
-            if(sp.length > 0) { return cb(sp[1]) }
+            if(sp.length > 1) { return cb(sp[1]) }
             cb('daremo inai yo...')
         })
     }
