@@ -24,7 +24,7 @@ class McLogWatcher extends EventEmitter {
                 if(stderr) { console.error(stderr); return }
                 const line = stdout.toString().split(/\r*\n/)
                 if(line.length == 0) { return }
-                const sp = line[0].split(/]:\s*/)
+                const sp = line[0].split(/\]:\s*/)
                 if(sp.length < 2) { return }
                 let t = sp[0].split(/\s+/)[0]
                 if(sp[1].length == 0) { return }
@@ -40,7 +40,7 @@ class McLogWatcher extends EventEmitter {
                     this.emit('chat', `**${mes}**`)
                 } else if(dm.some((v)=> v.test(mes))) {
                     this.emit('chat', `**${mes}**`)
-                } else if(/For help, type/.test(mes)) {
+                } else if(/! For help, type/.test(mes)) {
                     this.emit('notify', "restart")
                 } else {
                     console.log(mes)
