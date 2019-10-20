@@ -179,6 +179,9 @@ client.on('message', msg => {
     commands["!list"] = () => {
         watcher.list((_)=> { msg.reply(_) })
     }
+    commands["!say"] = () => {
+        watcher.say(rest.join(" "))
+    }
 
     let command = commands[first]
     if(command) { reaction(); command(); return }

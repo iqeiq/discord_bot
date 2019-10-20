@@ -60,17 +60,20 @@ class McLogWatcher extends EventEmitter {
                 .map(s => s.length > 1 ? s[1] : s[0])
                 .join('\n');
             if(result.length == 0) { return }
-            cb(result)
+            if(cb) { cb(result) }
         })
     }
 
     list(cb) {
         this.command('list', (str)=> {
-            console.log(str)
             const sp = str.split(/:\s*/)
-            if(sp.length > 1) { return cb(sp[1]) }
+            if(sp.length > 1 && sp[1].length > 0) { return cb(sp[1]) }
             cb('daremo inai yo...')
         })
+    }
+
+    say(message) {
+        this.command(`say ${message}`)
     }
 
     mc_command(cmd, cb) {
