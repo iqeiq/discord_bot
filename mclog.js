@@ -31,7 +31,7 @@ class McLogWatcher extends EventEmitter {
                 let mes = `${t} ${sp[1]}`
                 if(mes == prevlog) { return }
                 prevlog = mes
-                mes = `${sp[1]}`
+                //mes = `${sp[1]}`
                 if(/<[^>]+>/.test(mes)) {
                     this.emit('chat', mes)
                 } else if(/advancement/.test(mes)) {
