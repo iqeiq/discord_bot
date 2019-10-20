@@ -115,6 +115,7 @@ client.on('ready', () => {
         Rx.Observable
             .fromEvent(watcher, 'chat')
             .buffer(() => Rx.Observable.timer(30000))
+            .where(lines => lines.length > 0)
             .subscribe(lines => {
                 mes = lines.join('\n')
                 mc_ch.send(mes)
