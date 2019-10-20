@@ -114,7 +114,7 @@ client.on('ready', () => {
     } else {
         Rx.Observable
             .fromEvent(watcher, 'chat')
-            .buffer(() => Rx.Observable.timer(60 * 1000))
+            .buffer(() => Rx.Observable.timer(120 * 1000))
             .where(lines => lines.length > 0)
             .subscribe(lines => {
                 mes = lines.join('\n')
