@@ -40,7 +40,7 @@ class McLogWatcher extends EventEmitter {
                     this.emit('chat', `**${mes}**`)
                 } else if(dm.some((v)=> v.test(mes))) {
                     this.emit('chat', `**${mes}**`)
-                } else if(/! For help, type/.test(mes)) {
+                } else if(/Starting remote control listener/.test(mes)) {
                     this.emit('notify', "restart")
                 } else {
                     console.log(mes)
