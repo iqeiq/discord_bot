@@ -34,12 +34,14 @@ class McLogWatcher extends EventEmitter {
                 //mes = `${sp[1]}`
                 if(/<[^>]+>/.test(mes)) {
                     this.emit('chat', mes)
-                } else if(/advancement/.test(mes) || /completed the challenge/.test(mes)) {
+                } else if(/advancement \[/.test(mes) || /completed the challenge/.test(mes)) {
                     this.emit('chat', `**${mes}**`)
                 } else if(/the game/.test(mes)) {
                     this.emit('chat', `**${mes}**`)
                 } else if(dm.some((v)=> v.test(mes))) {
                     this.emit('chat', `**${mes}**`)
+                } else if(/For help, type/.test(mes)) {
+                    this.emit('notify', "restart")
                 } else {
                     console.log(mes)
                 }
@@ -80,6 +82,13 @@ class McLogWatcher extends EventEmitter {
         exec(`/home/ilil/mc.sh ${cmd}`, (err, stdout, stderr)=> {
             if(err) { console.error(err); cb('err'); return }
             if(stderr) { console.error(stderr); cb('stderr'); return }
+            cb(stdout)
+        })
+    }
+
+    restart(cb) {
+        this.mc_command('restart', (_) => {
+            if(_ == 'err' || _ == 'stderr') return cb(_)
             cb('done')
         })
     }
