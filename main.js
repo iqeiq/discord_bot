@@ -114,7 +114,7 @@ client.on('ready', () => {
     } else {
         Rx.Observable
             .fromEvent(watcher, 'chat')
-            .buffer(() => Rx.Observable.timer(30000))
+            .buffer(() => Rx.Observable.timer(60 * 1000))
             .where(lines => lines.length > 0)
             .subscribe(lines => {
                 mes = lines.join('\n')
@@ -122,7 +122,7 @@ client.on('ready', () => {
                 console.log("[chat]", mes)
             });
         watcher.on('notify', (mes)=> {
-            mc_ch.send(mes)
+            mc_ch.send(`**${mes}**`)
             console.log("[notify]", mes)
         })
     }

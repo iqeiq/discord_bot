@@ -34,8 +34,7 @@ class McLogWatcher extends EventEmitter {
                 mes = `${sp[1]}`
                 if(/<[^>]+>/.test(mes)) {
                     this.emit('chat', mes)
-                }
-                if(/advancement/.test(mes)) {
+                } else if(/advancement/.test(mes)) {
                     this.emit('notify', mes)
                 } else if(/the game/.test(mes)) {
                     this.emit('notify', mes)
