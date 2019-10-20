@@ -46,6 +46,39 @@ class McLogWatcher extends EventEmitter {
             })
         })
     }
+
+    command(cmd, cb) {
+        exec(`/home/ilil/mc.sh command ${cmd}`, (err, stdout, stderr)=> {
+            if(err) { console.error(err); return }
+            if(stderr) { console.error(stderr); return }
+            const line = stdout.toString().split(/\r*\n/)
+            if(line.length < 2) { return }
+            line.splice(0, 1)
+            const result = line
+                .map(l => l.split(/]:\s*/))
+                .filter(s => s.length > 0)
+                .map(s => s.length > 1 ? s[1] : s[0])
+                join('\n');
+            if(result.length == 0) { return }
+            cb(result)
+        })
+    }
+
+    list(cb) {
+        this.command('list', (str)=> {
+            const sp = str.split(/:\s*/)
+            if(sp.length > 0) { return cb(sp[1]) }
+            cb('daremo inai yo...')
+        })
+    }
+
+    mc_command(cmd, cb) {
+        exec(`/home/ilil/mc.sh ${cmd}`, (err, stdout, stderr)=> {
+            if(err) { console.error(err); cb('err'); return }
+            if(stderr) { console.error(stderr); cb('stderr'); return }
+            cb('done')
+        })
+    }
 }
 
 module.exports = McLogWatcher

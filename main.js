@@ -168,10 +168,18 @@ client.on('message', msg => {
         msg.channel.send(`:elephant: :dash:\n\`${message}\``)
     }
     // 生存確認
-    commands["!ping"] = () => {}
+    commands["!ping"] = () => { msg.reply('pong') }
     // ヨシ！
     commands["!cancel"] = () => { canceler() }
     
+    // mc
+    commands["!restart"] = () => { 
+        watcher.mc_command('restart', (_)=> { msg.reply(_) })
+    }
+    commands["!list"] = () => {
+        watcher.list((_)=> { msg.reply(_) })
+    }
+
     let command = commands[first]
     if(command) { reaction(); command(); return }
 
@@ -228,10 +236,21 @@ client.on('message', msg => {
 
     // 管理者特権
     if(author.id === process.env.OWNER_ID) {
-        if(channel.type === 'dm') {
-            let ch = findUserVoiceChannel(process.env.OWNER_ID)
-            if(ch != null) talk(ch, content)
-            else msg.reply('You need to join a voice channel first! :elephant:')
+        // if(channel.type === 'dm') {
+        //     let ch = findUserVoiceChannel(process.env.OWNER_ID)
+        //     if(ch != null) talk(ch, content)
+        //     else msg.reply('You need to join a voice channel first! :elephant:')
+        //     return
+        // }
+
+        if(first == "!command") {
+            watcher.command(rest.join(" "), (_)=> { msg.reply(_) })
+            return
+        }
+
+        if(first == "!mc_command") {
+            watcher.mc_command(rest.join(" "), (_)=> { msg.reply(_) })
+            return
         }
     }
 
