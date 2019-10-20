@@ -58,7 +58,7 @@ class McLogWatcher extends EventEmitter {
                 .map(l => l.split(/]:\s*/))
                 .filter(s => s.length > 0)
                 .map(s => s.length > 1 ? s[1] : s[0])
-                join('\n');
+                .join('\n');
             if(result.length == 0) { return }
             cb(result)
         })
