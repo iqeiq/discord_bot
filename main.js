@@ -113,12 +113,12 @@ client.on('ready', () => {
         console.error("not found minecraft channel")
     } else {
         Rx.Observable
-            .fromEvent(watcher, 'notify')
+            .fromEvent(watcher, 'chat')
             .buffer(() => Rx.Observable.timer(30000))
             .subscribe(lines => {
                 mes = lines.join('\n')
                 mc_ch.send(mes)
-                console.log("[notify]", mes)
+                console.log("[chat]", mes)
             });
         watcher.on('notify', (mes)=> {
             mc_ch.send(mes)

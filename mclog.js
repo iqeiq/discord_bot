@@ -33,7 +33,7 @@ class McLogWatcher extends EventEmitter {
                 prevlog = mes
                 mes = `${sp[1]}`
                 if(/<[^>]+>/.test(mes)) {
-                    this.emit('notify', mes)
+                    this.emit('chat', mes)
                 }
                 if(/advancement/.test(mes)) {
                     this.emit('notify', mes)
