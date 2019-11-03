@@ -32,6 +32,10 @@ class McLogWatcher extends EventEmitter {
                 if(mes == prevlog) { return }
                 prevlog = mes
                 //mes = `${sp[1]}`
+                // IPv4
+                if(/(?:\d{1,3}\.){3}\d{1,3}/.test(mes)) {
+                    return // discard
+                }
                 if(/<[^>]+>/.test(mes)) {
                     this.emit('chat', mes)
                 } else if(/advancement \[/.test(mes) || /completed the challenge/.test(mes)) {
