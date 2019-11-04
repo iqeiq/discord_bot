@@ -176,6 +176,9 @@ client.on('message', msg => {
     commands["!restart"] = () => { 
         watcher.restart((_)=> { msg.reply(_) })
     }
+    commands["!stop"] = () => { 
+        watcher.stop((_)=> { msg.reply(_) })
+    }
     commands["!list"] = () => {
         watcher.list((_)=> { msg.reply(_) })
     }

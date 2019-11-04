@@ -96,6 +96,13 @@ class McLogWatcher extends EventEmitter {
             cb('done')
         })
     }
+
+    stop(cb) {
+        this.mc_command('stop', (_) => {
+            if(_ == 'err' || _ == 'stderr') return cb(_)
+            cb('done')
+        })
+    }
 }
 
 module.exports = McLogWatcher
